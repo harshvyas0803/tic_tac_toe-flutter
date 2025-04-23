@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 
 class SocketService {
   late IO.Socket socket;
-  final String serverUrl = kIsWeb ? 'http://localhost:3000' : 'http://192.168.197.113:3000'; // Updated IP
+  final String serverUrl =   'https://tttf-server-2.onrender.com'; // Updated IP
 
   SocketService() {
     socket = IO.io(
