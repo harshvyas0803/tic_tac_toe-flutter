@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'game_screen.dart';
-import 'package:uuid/uuid.dart';
+import 'dart:math';
 
 class EntryScreen extends StatefulWidget {
   const EntryScreen({Key? key}) : super(key: key);
@@ -13,25 +13,30 @@ class _EntryScreenState extends State<EntryScreen> {
   final TextEditingController _joinController = TextEditingController();
 
   void createRoom() {
-    final String roomId = Uuid().v4().substring(0, 6); // Short room ID
+    // Generate a 6-digit numeric room ID
+    final String roomId = (Random().nextInt(900000) + 100000).toString();
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => GameScreen(gameId: roomId),
+        builder: (context) => GameScreen(gameId: roomId, isCreator: true),
       ),
     );
   }
 
   void joinRoom() {
     final String roomId = _joinController.text.trim();
-    if (roomId.isNotEmpty) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => GameScreen(gameId: roomId),
-        ),
+    if (roomId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a Room ID to join')),
       );
+      return;
     }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => GameScreen(gameId: roomId, isCreator: false),
+      ),
+    );
   }
 
   @override
@@ -51,7 +56,10 @@ class _EntryScreenState extends State<EntryScreen> {
               const SizedBox(height: 40),
               ElevatedButton(
                 onPressed: createRoom,
-                child: const Text("🎯 Create Room"),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                ),
+                child: const Text("🎯 Create Room", style: TextStyle(fontSize: 18)),
               ),
               const SizedBox(height: 20),
               TextField(
@@ -60,16 +68,26 @@ class _EntryScreenState extends State<EntryScreen> {
                   labelText: "Enter Room ID",
                   border: OutlineInputBorder(),
                 ),
+                keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: joinRoom,
-                child: const Text("🔗 Join Room"),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                ),
+                child: const Text("🔗 Join Room", style: TextStyle(fontSize: 18)),
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _joinController.dispose();
+    super.dispose();
   }
 }
